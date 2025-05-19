@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { ArrowRight, UserRound, Tool, FileText, Users } from 'lucide-react';
+import { ArrowRight, UserRound, Wrench, FileText, Users } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -137,7 +137,7 @@ const Index = () => {
           <Card className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 border-slate-700 shadow-xl shadow-purple-900/10 backdrop-blur-sm hover:shadow-purple-800/20 transition-all duration-300">
             <CardContent className="p-6">
               <div className="bg-gradient-to-br from-purple-500 to-fuchsia-500 p-3 rounded-full w-fit mb-4 shadow-md shadow-purple-500/20">
-                <Tool className="h-6 w-6 text-white" />
+                <Wrench className="h-6 w-6 text-white" />
               </div>
               <h3 className="text-xl font-semibold mb-2 text-white">Statistiques en temps réel</h3>
               <p className="text-blue-200 leading-relaxed">Visualisez les performances et l'état des tickets</p>
