@@ -1,15 +1,12 @@
 
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { ArrowRight, UserRound, Wrench, FileText, Users } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useAuth } from '@/hooks/useAuth';
 
 const Index = () => {
-  const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
   const [isHovered, setIsHovered] = useState(false);
   
   // Animation pour faire apparaître les éléments progressivement
@@ -74,7 +71,7 @@ const Index = () => {
         />
       </div>
       
-      {/* Header avec logo et profil */}
+      {/* Header avec logo et navigation */}
       <header className="relative z-10 container mx-auto py-6 px-4 flex justify-between items-center">
         <div className="flex items-center gap-3">
           <img src="/marocpme-logo.png" alt="MarocPME Logo" className="h-12" />
@@ -86,19 +83,19 @@ const Index = () => {
           </div>
         </div>
         
-        {/* Zone de profil */}
-        <motion.div 
-          whileHover={{ scale: isAuthenticated ? 1.1 : 1 }}
-          className={`p-2 rounded-full relative ${isAuthenticated 
-            ? 'bg-gradient-to-r from-blue-400 to-purple-500 shadow-lg shadow-purple-500/20' 
-            : 'bg-gray-700 opacity-60 cursor-not-allowed'}`}
-          title={isAuthenticated ? "Voir le profil" : "Connectez-vous pour accéder à votre profil"}
-        >
-          <UserRound size={24} className={`${isAuthenticated ? 'text-white' : 'text-gray-400'}`} />
-          {!isAuthenticated && (
-            <div className="absolute -top-1 -right-1 w-3 h-3 bg-gray-400 rounded-full" />
-          )}
-        </motion.div>
+        {/* Navigation */}
+        <div className="flex gap-3">
+          <Button asChild variant="ghost" className="text-blue-200 hover:text-white">
+            <Link to="/dashboard">
+              <FileText className="mr-2 h-4 w-4" /> Dashboard
+            </Link>
+          </Button>
+          <Button asChild variant="ghost" className="text-blue-200 hover:text-white">
+            <Link to="/profile">
+              <UserRound className="mr-2 h-4 w-4" /> Profil
+            </Link>
+          </Button>
+        </div>
       </header>
       
       <motion.div 
@@ -124,38 +121,44 @@ const Index = () => {
         
         {/* Cartes des fonctionnalités */}
         <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-5xl mb-16">
-          <Card className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 border-slate-700 shadow-xl shadow-purple-900/10 backdrop-blur-sm hover:shadow-purple-800/20 transition-all duration-300">
-            <CardContent className="p-6">
-              <div className="bg-gradient-to-br from-blue-500 to-indigo-500 p-3 rounded-full w-fit mb-4 shadow-md shadow-blue-500/20">
-                <FileText className="h-6 w-6 text-white" />
-              </div>
-              <h3 className="text-xl font-semibold mb-2 text-white">Gestion des tickets</h3>
-              <p className="text-blue-200 leading-relaxed">Accédez et gérez tous vos tickets JIRA en un seul endroit</p>
-            </CardContent>
-          </Card>
+          <Link to="/dashboard" className="block hover:scale-105 transition-transform duration-300">
+            <Card className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 border-slate-700 shadow-xl shadow-purple-900/10 backdrop-blur-sm hover:shadow-purple-800/20 transition-all duration-300 h-full">
+              <CardContent className="p-6">
+                <div className="bg-gradient-to-br from-blue-500 to-indigo-500 p-3 rounded-full w-fit mb-4 shadow-md shadow-blue-500/20">
+                  <FileText className="h-6 w-6 text-white" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2 text-white">Gestion des tickets</h3>
+                <p className="text-blue-200 leading-relaxed">Accédez et gérez tous vos tickets JIRA en un seul endroit</p>
+              </CardContent>
+            </Card>
+          </Link>
           
-          <Card className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 border-slate-700 shadow-xl shadow-purple-900/10 backdrop-blur-sm hover:shadow-purple-800/20 transition-all duration-300">
-            <CardContent className="p-6">
-              <div className="bg-gradient-to-br from-purple-500 to-fuchsia-500 p-3 rounded-full w-fit mb-4 shadow-md shadow-purple-500/20">
-                <Wrench className="h-6 w-6 text-white" />
-              </div>
-              <h3 className="text-xl font-semibold mb-2 text-white">Statistiques en temps réel</h3>
-              <p className="text-blue-200 leading-relaxed">Visualisez les performances et l'état des tickets</p>
-            </CardContent>
-          </Card>
+          <Link to="/dashboard" className="block hover:scale-105 transition-transform duration-300">
+            <Card className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 border-slate-700 shadow-xl shadow-purple-900/10 backdrop-blur-sm hover:shadow-purple-800/20 transition-all duration-300 h-full">
+              <CardContent className="p-6">
+                <div className="bg-gradient-to-br from-purple-500 to-fuchsia-500 p-3 rounded-full w-fit mb-4 shadow-md shadow-purple-500/20">
+                  <Wrench className="h-6 w-6 text-white" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2 text-white">Statistiques en temps réel</h3>
+                <p className="text-blue-200 leading-relaxed">Visualisez les performances et l'état des tickets</p>
+              </CardContent>
+            </Card>
+          </Link>
           
-          <Card className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 border-slate-700 shadow-xl shadow-purple-900/10 backdrop-blur-sm hover:shadow-purple-800/20 transition-all duration-300">
-            <CardContent className="p-6">
-              <div className="bg-gradient-to-br from-indigo-500 to-sky-500 p-3 rounded-full w-fit mb-4 shadow-md shadow-indigo-500/20">
-                <Users className="h-6 w-6 text-white" />
-              </div>
-              <h3 className="text-xl font-semibold mb-2 text-white">Collaboration d'équipe</h3>
-              <p className="text-blue-200 leading-relaxed">Collaborez efficacement avec votre équipe sur les tickets</p>
-            </CardContent>
-          </Card>
+          <Link to="/profile" className="block hover:scale-105 transition-transform duration-300">
+            <Card className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 border-slate-700 shadow-xl shadow-purple-900/10 backdrop-blur-sm hover:shadow-purple-800/20 transition-all duration-300 h-full">
+              <CardContent className="p-6">
+                <div className="bg-gradient-to-br from-indigo-500 to-sky-500 p-3 rounded-full w-fit mb-4 shadow-md shadow-indigo-500/20">
+                  <Users className="h-6 w-6 text-white" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2 text-white">Profil utilisateur</h3>
+                <p className="text-blue-200 leading-relaxed">Gérez votre profil et vos préférences</p>
+              </CardContent>
+            </Card>
+          </Link>
         </motion.div>
         
-        {/* Bouton de connexion JIRA animé */}
+        {/* Bouton d'accès rapide au dashboard */}
         <motion.div 
           variants={itemVariants}
           className="flex flex-col items-center gap-6"
@@ -169,19 +172,21 @@ const Index = () => {
               className="text-lg px-10 py-7 rounded-xl flex items-center gap-2 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 shadow-lg shadow-blue-600/30 border-0"
               onMouseEnter={() => setIsHovered(true)}
               onMouseLeave={() => setIsHovered(false)}
-              onClick={() => navigate('/login')}
+              asChild
             >
-              <span className="text-white">Se connecter avec JIRA</span>
-              <motion.div
-                animate={{ x: isHovered ? 5 : 0 }}
-                transition={{ type: "spring", stiffness: 400, damping: 10 }}
-              >
-                <ArrowRight className="ml-1 text-white" />
-              </motion.div>
+              <Link to="/dashboard">
+                <span className="text-white">Accéder au tableau de bord</span>
+                <motion.div
+                  animate={{ x: isHovered ? 5 : 0 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                >
+                  <ArrowRight className="ml-1 text-white" />
+                </motion.div>
+              </Link>
             </Button>
           </motion.div>
           
-          <p className="text-sm text-blue-200">Connectez-vous pour accéder à toutes les fonctionnalités</p>
+          <p className="text-sm text-blue-200">Accès direct à toutes les fonctionnalités</p>
         </motion.div>
       </motion.div>
       

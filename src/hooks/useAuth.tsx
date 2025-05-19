@@ -21,43 +21,42 @@ interface AuthContextType {
   checkAuth: () => Promise<boolean>;
 }
 
+// Utilisateur simulé par défaut
+const defaultUser: User = {
+  id: "1",
+  name: "Agent MarocPME",
+  email: "agent@marocpme.ma",
+  role: "agent",
+  phone: "0600000000",
+  department: "Support Technique"
+};
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  // Initialiser avec l'utilisateur par défaut
+  const [user, setUser] = useState<User | null>(defaultUser);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const navigate = useNavigate();
 
   const checkAuth = async (): Promise<boolean> => {
-    if (!authService.isAuthenticated()) {
-      setIsLoading(false);
-      return false;
-    }
-
-    try {
-      const userData = await authService.getUserProfile();
-      setUser(userData);
-      setIsLoading(false);
-      return true;
-    } catch (error) {
-      console.error('Erreur de vérification d\'authentification:', error);
-      setIsLoading(false);
-      return false;
-    }
+    // Simule que l'utilisateur est toujours authentifié
+    setIsLoading(false);
+    return true;
   };
 
   useEffect(() => {
-    checkAuth();
+    // Pas besoin de vérifier l'authentification car nous simulons un utilisateur connecté
   }, []);
 
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      const response = await authService.login({ email, password });
-      setUser(response.user);
+      // Simule une connexion réussie
+      setUser(defaultUser);
       toast({
         title: "Connecté",
-        description: `Bienvenue, ${response.user.name}`,
+        description: `Bienvenue, ${defaultUser.name}`,
       });
       navigate('/dashboard');
     } catch (error) {
@@ -74,13 +73,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = async () => {
     try {
-      await authService.logout();
-      setUser(null);
+      // Ne déconnecte pas réellement l'utilisateur, mais simule une déconnexion
       toast({
-        title: "Déconnecté",
-        description: "Vous avez été déconnecté avec succès",
+        title: "Déconnexion simulée",
+        description: "Dans cette version, l'utilisateur reste toujours connecté",
       });
-      navigate('/login');
     } catch (error) {
       console.error('Erreur de déconnexion:', error);
     }
@@ -91,7 +88,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       value={{
         user,
         isLoading,
-        isAuthenticated: !!user,
+        isAuthenticated: true, // Toujours authentifié
         login,
         logout,
         checkAuth,
