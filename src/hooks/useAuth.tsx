@@ -106,3 +106,86 @@ export const useAuth = () => {
   }
   return context;
 };
+
+/* 
+// Si vous souhaitez implémenter une authentification réelle, décommentez et adaptez ce code :
+
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const navigate = useNavigate();
+
+  const checkAuth = async (): Promise<boolean> => {
+    setIsLoading(true);
+    try {
+      const userData = await authService.getUserProfile();
+      setUser(userData);
+      setIsLoading(false);
+      return true;
+    } catch (error) {
+      setUser(null);
+      setIsLoading(false);
+      return false;
+    }
+  };
+
+  useEffect(() => {
+    if (authService.isAuthenticated()) {
+      checkAuth();
+    } else {
+      setIsLoading(false);
+    }
+  }, []);
+
+  const login = async (email: string, password: string) => {
+    setIsLoading(true);
+    try {
+      const response = await authService.login({ email, password });
+      setUser(response.user);
+      toast({
+        title: "Connecté",
+        description: `Bienvenue, ${response.user.name}`,
+      });
+      navigate('/dashboard');
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Échec de connexion",
+        description: "Email ou mot de passe incorrect",
+      });
+      console.error('Erreur de connexion:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const logout = async () => {
+    try {
+      await authService.logout();
+      setUser(null);
+      toast({
+        title: "Déconnecté",
+        description: "À bientôt!",
+      });
+      navigate('/login');
+    } catch (error) {
+      console.error('Erreur de déconnexion:', error);
+    }
+  };
+
+  return (
+    <AuthContext.Provider
+      value={{
+        user,
+        isLoading,
+        isAuthenticated: !!user,
+        login,
+        logout,
+        checkAuth,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
+};
+*/
