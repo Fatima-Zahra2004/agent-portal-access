@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { ArrowRight, UserRound } from 'lucide-react';
+import { ArrowRight, UserRound, Tool, FileText, Users } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -33,76 +33,124 @@ const Index = () => {
       transition: { type: "spring", stiffness: 100 }
     }
   };
+  
+  const pulseVariants = {
+    pulse: {
+      scale: [1, 1.05, 1],
+      opacity: [0.7, 1, 0.7],
+      transition: {
+        duration: 2,
+        repeat: Infinity,
+        ease: "easeInOut"
+      }
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-slate-100 dark:from-background dark:to-slate-900">
-      {/* Header avec logo et profil inactif */}
-      <header className="container mx-auto py-6 px-4 flex justify-between items-center">
-        <div className="flex items-center gap-2">
-          <img src="/logo.png" alt="Logo" className="h-10" />
-          <h1 className="text-2xl font-bold text-primary">Portail Agent</h1>
+    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 text-white">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <motion.div 
+          className="absolute top-0 left-0 w-[500px] h-[500px] rounded-full bg-purple-500/10 filter blur-3xl"
+          animate={{
+            x: [0, 100, 0],
+            y: [0, 50, 0],
+          }}
+          transition={{
+            duration: 15,
+            repeat: Infinity,
+          }}
+        />
+        <motion.div 
+          className="absolute bottom-0 right-0 w-[600px] h-[600px] rounded-full bg-blue-500/10 filter blur-3xl"
+          animate={{
+            x: [0, -100, 0],
+            y: [0, -50, 0],
+          }}
+          transition={{
+            duration: 20,
+            repeat: Infinity,
+          }}
+        />
+      </div>
+      
+      {/* Header avec logo et profil */}
+      <header className="relative z-10 container mx-auto py-6 px-4 flex justify-between items-center">
+        <div className="flex items-center gap-3">
+          <img src="/marocpme-logo.png" alt="MarocPME Logo" className="h-12" />
+          <div>
+            <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
+              Portail Agent
+            </h1>
+            <p className="text-xs text-blue-200">Maroc PME - Gestion des tickets</p>
+          </div>
         </div>
         
-        {/* Zone de profil (inactive) */}
-        <div 
-          className={`p-2 rounded-full border border-gray-300 relative ${isAuthenticated ? 'bg-primary/10' : 'bg-gray-100 opacity-60 cursor-not-allowed'}`}
+        {/* Zone de profil */}
+        <motion.div 
+          whileHover={{ scale: isAuthenticated ? 1.1 : 1 }}
+          className={`p-2 rounded-full relative ${isAuthenticated 
+            ? 'bg-gradient-to-r from-blue-400 to-purple-500 shadow-lg shadow-purple-500/20' 
+            : 'bg-gray-700 opacity-60 cursor-not-allowed'}`}
           title={isAuthenticated ? "Voir le profil" : "Connectez-vous pour accéder à votre profil"}
         >
-          <UserRound size={24} className={`${isAuthenticated ? 'text-primary' : 'text-gray-400'}`} />
+          <UserRound size={24} className={`${isAuthenticated ? 'text-white' : 'text-gray-400'}`} />
           {!isAuthenticated && (
             <div className="absolute -top-1 -right-1 w-3 h-3 bg-gray-400 rounded-full" />
           )}
-        </div>
+        </motion.div>
       </header>
       
       <motion.div 
-        className="container mx-auto px-4 py-12 flex flex-col items-center justify-center"
+        className="relative z-10 container mx-auto px-4 py-12 flex flex-col items-center justify-center"
         initial="hidden"
         animate="visible"
         variants={containerVariants}
       >
-        <motion.div variants={itemVariants} className="text-center mb-10">
-          <h2 className="text-4xl font-bold mb-4">Bienvenue sur votre Portail Agent</h2>
-          <p className="text-xl text-gray-600 max-w-2xl">
+        <motion.div variants={itemVariants} className="text-center mb-12">
+          <motion.h2 
+            className="text-4xl md:text-5xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-300 to-purple-300"
+            animate={{ 
+              textShadow: ["0 0 8px rgba(167, 139, 250, 0.3)", "0 0 16px rgba(167, 139, 250, 0.6)", "0 0 8px rgba(167, 139, 250, 0.3)"]
+            }}
+            transition={{ duration: 3, repeat: Infinity }}
+          >
+            Bienvenue sur votre Portail Agent
+          </motion.h2>
+          <p className="text-xl text-blue-100 max-w-2xl mx-auto leading-relaxed">
             Gérez efficacement vos tickets et suivez l'activité de votre équipe en un seul endroit
           </p>
         </motion.div>
         
         {/* Cartes des fonctionnalités */}
-        <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-5xl mb-12">
-          <Card className="shadow-md hover:shadow-lg transition-shadow duration-300">
+        <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-5xl mb-16">
+          <Card className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 border-slate-700 shadow-xl shadow-purple-900/10 backdrop-blur-sm hover:shadow-purple-800/20 transition-all duration-300">
             <CardContent className="p-6">
-              <div className="bg-primary/10 p-3 rounded-full w-fit mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                </svg>
+              <div className="bg-gradient-to-br from-blue-500 to-indigo-500 p-3 rounded-full w-fit mb-4 shadow-md shadow-blue-500/20">
+                <FileText className="h-6 w-6 text-white" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">Gestion des tickets</h3>
-              <p className="text-gray-600">Accédez et gérez tous vos tickets JIRA en un seul endroit</p>
+              <h3 className="text-xl font-semibold mb-2 text-white">Gestion des tickets</h3>
+              <p className="text-blue-200 leading-relaxed">Accédez et gérez tous vos tickets JIRA en un seul endroit</p>
             </CardContent>
           </Card>
           
-          <Card className="shadow-md hover:shadow-lg transition-shadow duration-300">
+          <Card className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 border-slate-700 shadow-xl shadow-purple-900/10 backdrop-blur-sm hover:shadow-purple-800/20 transition-all duration-300">
             <CardContent className="p-6">
-              <div className="bg-primary/10 p-3 rounded-full w-fit mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                </svg>
+              <div className="bg-gradient-to-br from-purple-500 to-fuchsia-500 p-3 rounded-full w-fit mb-4 shadow-md shadow-purple-500/20">
+                <Tool className="h-6 w-6 text-white" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">Statistiques en temps réel</h3>
-              <p className="text-gray-600">Visualisez les performances et l'état des tickets</p>
+              <h3 className="text-xl font-semibold mb-2 text-white">Statistiques en temps réel</h3>
+              <p className="text-blue-200 leading-relaxed">Visualisez les performances et l'état des tickets</p>
             </CardContent>
           </Card>
           
-          <Card className="shadow-md hover:shadow-lg transition-shadow duration-300">
+          <Card className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 border-slate-700 shadow-xl shadow-purple-900/10 backdrop-blur-sm hover:shadow-purple-800/20 transition-all duration-300">
             <CardContent className="p-6">
-              <div className="bg-primary/10 p-3 rounded-full w-fit mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
+              <div className="bg-gradient-to-br from-indigo-500 to-sky-500 p-3 rounded-full w-fit mb-4 shadow-md shadow-indigo-500/20">
+                <Users className="h-6 w-6 text-white" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">Collaboration d'équipe</h3>
-              <p className="text-gray-600">Collaborez efficacement avec votre équipe sur les tickets</p>
+              <h3 className="text-xl font-semibold mb-2 text-white">Collaboration d'équipe</h3>
+              <p className="text-blue-200 leading-relaxed">Collaborez efficacement avec votre équipe sur les tickets</p>
             </CardContent>
           </Card>
         </motion.div>
@@ -113,32 +161,32 @@ const Index = () => {
           className="flex flex-col items-center gap-6"
         >
           <motion.div
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            variants={pulseVariants}
+            animate="pulse"
           >
             <Button 
               size="lg" 
-              className="text-lg px-8 py-6 rounded-xl flex items-center gap-2 group"
+              className="text-lg px-10 py-7 rounded-xl flex items-center gap-2 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 shadow-lg shadow-blue-600/30 border-0"
               onMouseEnter={() => setIsHovered(true)}
               onMouseLeave={() => setIsHovered(false)}
               onClick={() => navigate('/login')}
             >
-              Se connecter avec JIRA
+              <span className="text-white">Se connecter avec JIRA</span>
               <motion.div
                 animate={{ x: isHovered ? 5 : 0 }}
                 transition={{ type: "spring", stiffness: 400, damping: 10 }}
               >
-                <ArrowRight className="ml-1" />
+                <ArrowRight className="ml-1 text-white" />
               </motion.div>
             </Button>
           </motion.div>
           
-          <p className="text-sm text-gray-500">Connectez-vous pour accéder à toutes les fonctionnalités</p>
+          <p className="text-sm text-blue-200">Connectez-vous pour accéder à toutes les fonctionnalités</p>
         </motion.div>
       </motion.div>
       
-      <footer className="container mx-auto py-6 px-4 text-center text-gray-500 text-sm">
-        © 2025 Portail Agent - Tous droits réservés
+      <footer className="relative z-10 container mx-auto py-6 px-4 text-center text-blue-300 text-sm">
+        © 2025 Portail Agent MarocPME - Tous droits réservés
       </footer>
     </div>
   );
