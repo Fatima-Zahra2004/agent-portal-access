@@ -1,6 +1,5 @@
 
 import { Link, useLocation } from 'react-router-dom'
-import { Button } from '@/components/ui/button'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { useAuth } from '@/hooks/useAuth'
 import { 
@@ -9,8 +8,13 @@ import {
   User, 
   LogOut 
 } from 'lucide-react'
+import { ReactNode } from 'react'
 
-export function Header() {
+interface HeaderProps {
+  children?: ReactNode
+}
+
+export function Header({ children }: HeaderProps) {
   const location = useLocation()
   const { logout, user } = useAuth()
 
@@ -36,9 +40,11 @@ export function Header() {
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
         {/* Logo */}
-        <Link to="/dashboard" className="flex items-center space-x-2">
+        <Link to="/" className="flex items-center space-x-2">
           <img src="/marocpme-logo.png" alt="MarocPME" className="h-8 w-auto" />
-          <span className="font-bold text-xl">Portail Agent</span>
+          <span className="font-bold text-xl bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+            Portail Agent
+          </span>
         </Link>
 
         {/* Navigation */}
@@ -64,24 +70,28 @@ export function Header() {
           })}
         </nav>
 
-        {/* User actions */}
+        {/* Actions utilisateur */}
         <div className="flex items-center space-x-4">
           <ThemeToggle />
           
-          <div className="flex items-center space-x-2 text-sm">
-            <span className="text-muted-foreground">Bienvenue,</span>
-            <span className="font-medium">{user?.name}</span>
-          </div>
-          
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={logout}
-            className="text-muted-foreground hover:text-foreground"
-          >
-            <LogOut className="h-4 w-4 mr-2" />
-            Déconnexion
-          </Button>
+          {user ? (
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2 text-sm">
+                <span className="text-muted-foreground">Bienvenue,</span>
+                <span className="font-medium">{user.name}</span>
+              </div>
+              
+              <button
+                onClick={logout}
+                className="flex items-center space-x-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <LogOut className="h-4 w-4" />
+                <span>Déconnexion</span>
+              </button>
+            </div>
+          ) : (
+            children
+          )}
         </div>
       </div>
     </header>
