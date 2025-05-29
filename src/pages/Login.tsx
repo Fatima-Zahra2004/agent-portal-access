@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { ThemeToggle } from '@/components/ThemeToggle'
-import { KeyRound, User } from 'lucide-react'
+import { KeyRound, User, AlertCircle } from 'lucide-react'
 
 const Login = () => {
   const [nom, setNom] = useState('')
@@ -15,8 +15,10 @@ const Login = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Pour la simulation, on utilise nom et token comme email et password
-    await login(nom || 'agent@marocpme.ma', token || 'password')
+    if (!nom.trim() || !token.trim()) {
+      return;
+    }
+    await login(nom, token)
   }
 
   return (
@@ -41,10 +43,10 @@ const Login = () => {
           
           <div className="space-y-2">
             <CardTitle className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
-              Portail Agent
+              Portail Agent JIRA
             </CardTitle>
             <CardDescription className="text-base text-muted-foreground">
-              Accédez à votre espace de gestion des tickets JIRA
+              Connectez-vous avec votre token PAT JIRA pour accéder à votre espace
             </CardDescription>
           </div>
         </CardHeader>
@@ -58,7 +60,7 @@ const Login = () => {
               </Label>
               <Input
                 id="nom"
-                placeholder="Entrez votre nom"
+                placeholder="Votre nom d'utilisateur JIRA"
                 type="text"
                 value={nom}
                 onChange={(e) => setNom(e.target.value)}
@@ -74,7 +76,7 @@ const Login = () => {
               </Label>
               <Input
                 id="token"
-                placeholder="Votre token d'accès personnel"
+                placeholder="Collez votre token d'accès personnel JIRA"
                 type="password"
                 value={token}
                 onChange={(e) => setToken(e.target.value)}
@@ -82,19 +84,31 @@ const Login = () => {
                 className="h-11 transition-all duration-200 focus:ring-2 focus:ring-primary/20"
               />
               <p className="text-xs text-muted-foreground">
-                Généré via l'interface d'administration JIRA
+                Token généré via l'interface d'administration JIRA
               </p>
+            </div>
+
+            <div className="bg-blue-50 dark:bg-blue-950/50 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
+              <div className="flex items-start gap-2">
+                <AlertCircle className="h-4 w-4 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+                <div className="text-xs text-blue-700 dark:text-blue-300">
+                  <p className="font-medium mb-1">Comment obtenir votre token PAT :</p>
+                  <p>1. Connectez-vous à JIRA</p>
+                  <p>2. Allez dans Paramètres → Sécurité → Tokens API</p>
+                  <p>3. Créez un nouveau token avec les permissions appropriées</p>
+                </div>
+              </div>
             </div>
 
             <Button 
               type="submit" 
               className="w-full h-11 text-base font-medium bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary transition-all duration-200 shadow-lg hover:shadow-xl" 
-              disabled={isLoading}
+              disabled={isLoading || !nom.trim() || !token.trim()}
             >
               {isLoading ? (
                 <div className="flex items-center gap-2">
                   <div className="h-4 w-4 animate-spin rounded-full border-2 border-background border-t-transparent" />
-                  Connexion...
+                  Connexion en cours...
                 </div>
               ) : (
                 'Se connecter'
@@ -104,7 +118,7 @@ const Login = () => {
 
           <div className="text-center">
             <p className="text-sm text-muted-foreground">
-              Besoin d'aide ? Contactez le{' '}
+              Problème de connexion ? Contactez le{' '}
               <Button variant="link" className="p-0 h-auto text-primary font-medium">
                 support technique
               </Button>
