@@ -113,15 +113,15 @@ const getPriorityColor = (priority: string) => {
 
 const Dashboard = () => {
   const [searchTerm, setSearchTerm] = useState('')
-  const [statusFilter, setStatusFilter] = useState('')
-  const [priorityFilter, setPriorityFilter] = useState('')
+  const [statusFilter, setStatusFilter] = useState('all')
+  const [priorityFilter, setPriorityFilter] = useState('all')
 
   const filteredTickets = dashboardData.recentTickets.filter(ticket => {
     const matchesSearch = ticket.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          ticket.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          ticket.id.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesStatus = !statusFilter || ticket.status === statusFilter
-    const matchesPriority = !priorityFilter || ticket.priority === priorityFilter
+    const matchesStatus = statusFilter === 'all' || ticket.status === statusFilter
+    const matchesPriority = priorityFilter === 'all' || ticket.priority === priorityFilter
     
     return matchesSearch && matchesStatus && matchesPriority
   })
@@ -221,7 +221,7 @@ const Dashboard = () => {
                     <SelectValue placeholder="Statut" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Tous</SelectItem>
+                    <SelectItem value="all">Tous</SelectItem>
                     <SelectItem value="Open">Ouvert</SelectItem>
                     <SelectItem value="In Progress">En cours</SelectItem>
                     <SelectItem value="Resolved">Résolu</SelectItem>
@@ -232,7 +232,7 @@ const Dashboard = () => {
                     <SelectValue placeholder="Priorité" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Toutes</SelectItem>
+                    <SelectItem value="all">Toutes</SelectItem>
                     <SelectItem value="High">Haute</SelectItem>
                     <SelectItem value="Medium">Moyenne</SelectItem>
                     <SelectItem value="Low">Basse</SelectItem>
