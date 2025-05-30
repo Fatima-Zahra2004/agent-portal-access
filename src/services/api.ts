@@ -1,19 +1,80 @@
-
 /**
- * Service pour communiquer avec le backend Laravel externe
+ * Service pour communiquer avec le backend Express.js
  */
 import axios from 'axios';
 
-// Créer une instance axios avec la configuration de base
+// Créer une instance axios avec la configuration de base pour Express.js
 const api = axios.create({
-  baseURL: import.meta.env.VITE_LARAVEL_API_URL || 'http://localhost:8000/api',
+  baseURL: import.meta.env.VITE_EXPRESS_API_URL || 'http://localhost:3000/api',
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json'
   }
 });
 
-// Mock des données pour simuler l'API
+// Intercepteur pour ajouter le token d'authentification à chaque requête
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('jira_token');
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// Service d'API pour l'authentification JIRA via Express.js
+export const authService = {
+  // Vérifier le token PAT et récupérer les infos utilisateur
+  verifyToken: async (token: string) => {
+    try {
+      console.log('Vérification du token PAT via Express.js...');
+      const response = await axios.get('http://localhost:3000/api/me', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json'
+        }
+      });
+      
+      return {
+        success: true,
+        user: {
+          id: response.data.accountId || response.data.key,
+          name: response.data.displayName,
+          email: response.data.emailAddress,
+          role: response.data.groups?.items?.[0]?.name || 'agent',
+          department: 'Support Technique',
+          phone: '+212 6 00 00 00 00',
+          avatar: response.data.avatarUrls?.['48x48'],
+          jiraKey: response.data.key,
+          timezone: response.data.timeZone
+        }
+      };
+    } catch (error: any) {
+      console.error('Erreur lors de la vérification du token:', error);
+      return {
+        success: false,
+        error: error.response?.data?.error || 'Token PAT invalide ou problème de connexion à JIRA'
+      };
+    }
+  },
+  
+  // Vérifier si l'utilisateur est authentifié
+  isAuthenticated: () => {
+    return !!localStorage.getItem('jira_token');
+  },
+  
+  // Déconnexion
+  logout: () => {
+    localStorage.removeItem('jira_user');
+    localStorage.removeItem('jira_token');
+  }
+};
+
+// Mock des données pour les tickets (à remplacer par de vraies API JIRA plus tard)
 const mockTickets = [
   {
     id: "T1001",
@@ -155,20 +216,6 @@ const mockTickets = [
   }
 ];
 
-// Intercepteur pour ajouter le token d'authentification à chaque requête
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('auth_token');
-    if (token) {
-      config.headers['Authorization'] = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
-
 // Service d'API pour les tickets JIRA
 export const ticketService = {
   // Récupérer tous les tickets
@@ -176,21 +223,10 @@ export const ticketService = {
     // Simulation API - retourne les tickets mockés au lieu d'appeler l'API réelle
     console.log('Récupération des tickets simulée');
     return mockTickets;
-    
-    /* Version API réelle commentée
-    try {
-      const response = await api.get('/tickets');
-      return response.data;
-    } catch (error) {
-      console.error('Erreur lors de la récupération des tickets:', error);
-      throw error;
-    }
-    */
   },
   
   // Récupérer un ticket par ID
   getById: async (id: string) => {
-    // Simulation API
     console.log(`Récupération du ticket ${id} simulée`);
     const ticket = mockTickets.find(t => t.id === id);
     if (ticket) {
@@ -198,21 +234,10 @@ export const ticketService = {
     } else {
       throw new Error("Ticket non trouvé");
     }
-    
-    /* Version API réelle commentée
-    try {
-      const response = await api.get(`/tickets/${id}`);
-      return response.data;
-    } catch (error) {
-      console.error(`Erreur lors de la récupération du ticket ${id}:`, error);
-      throw error;
-    }
-    */
   },
   
   // Créer un nouveau ticket
   create: async (ticketData: any) => {
-    // Simulation API
     console.log('Création de ticket simulée', ticketData);
     const newTicket = {
       id: `T${1000 + mockTickets.length + 1}`,
@@ -221,154 +246,28 @@ export const ticketService = {
       comments: [],
       attachments: []
     };
-    // Normalement on ajouterait à mockTickets, mais c'est une constante
-    // Dans un cas réel, cela serait géré par la persistance du backend
     return newTicket;
-    
-    /* Version API réelle commentée
-    try {
-      const response = await api.post('/tickets', ticketData);
-      return response.data;
-    } catch (error) {
-      console.error('Erreur lors de la création du ticket:', error);
-      throw error;
-    }
-    */
   },
   
   // Mettre à jour un ticket
   update: async (id: string, ticketData: any) => {
-    // Simulation API
     console.log(`Mise à jour du ticket ${id} simulée`, ticketData);
     const ticketIndex = mockTickets.findIndex(t => t.id === id);
     if (ticketIndex >= 0) {
       const updatedTicket = { ...mockTickets[ticketIndex], ...ticketData };
-      // Dans un cas réel, mockTickets[ticketIndex] = updatedTicket;
       return updatedTicket;
     }
     throw new Error("Ticket non trouvé");
-    
-    /* Version API réelle commentée
-    try {
-      const response = await api.put(`/tickets/${id}`, ticketData);
-      return response.data;
-    } catch (error) {
-      console.error(`Erreur lors de la mise à jour du ticket ${id}:`, error);
-      throw error;
-    }
-    */
   },
   
   // Supprimer un ticket
   delete: async (id: string) => {
-    // Simulation API
     console.log(`Suppression du ticket ${id} simulée`);
     const ticketIndex = mockTickets.findIndex(t => t.id === id);
     if (ticketIndex >= 0) {
-      // Dans un cas réel, mockTickets.splice(ticketIndex, 1);
       return { success: true, message: "Ticket supprimé avec succès" };
     }
     throw new Error("Ticket non trouvé");
-    
-    /* Version API réelle commentée
-    try {
-      const response = await api.delete(`/tickets/${id}`);
-      return response.data;
-    } catch (error) {
-      console.error(`Erreur lors de la suppression du ticket ${id}:`, error);
-      throw error;
-    }
-    */
-  }
-};
-
-// Service d'API pour l'authentification
-export const authService = {
-  // Connexion utilisateur - simulation
-  login: async (credentials: { email: string; password: string }) => {
-    // Simulation d'une authentification réussie
-    console.log('Connexion simulée avec', credentials);
-    if (credentials.email === "agent@marocpme.ma" && credentials.password === "password") {
-      const userData = {
-        user: {
-          id: "1",
-          name: "Agent MarocPME",
-          email: credentials.email,
-          role: "agent",
-          phone: "0600000000",
-          department: "Support Technique"
-        },
-        token: "fake-jwt-token-for-simulation"
-      };
-      localStorage.setItem('auth_token', userData.token);
-      return userData;
-    }
-    throw new Error("Identifiants invalides");
-    
-    /* Version API réelle commentée
-    try {
-      const response = await api.post('/login', credentials);
-      if (response.data.token) {
-        localStorage.setItem('auth_token', response.data.token);
-      }
-      return response.data;
-    } catch (error) {
-      console.error('Erreur lors de la connexion:', error);
-      throw error;
-    }
-    */
-  },
-  
-  // Déconnexion - simulation
-  logout: async () => {
-    console.log('Déconnexion simulée');
-    localStorage.removeItem('auth_token');
-    
-    /* Version API réelle commentée
-    try {
-      await api.post('/logout');
-      localStorage.removeItem('auth_token');
-    } catch (error) {
-      console.error('Erreur lors de la déconnexion:', error);
-      // Supprimer le token même en cas d'erreur
-      localStorage.removeItem('auth_token');
-      throw error;
-    }
-    */
-  },
-  
-  // Vérifier si l'utilisateur est authentifié
-  isAuthenticated: () => {
-    // Pour notre simulation, on retourne toujours true
-    return true;
-    
-    /* Version API réelle commentée
-    return !!localStorage.getItem('auth_token');
-    */
-  },
-  
-  // Récupérer le profil de l'utilisateur - simulation
-  getUserProfile: async () => {
-    // Simulation du profil utilisateur
-    console.log('Récupération du profil simulée');
-    return {
-      id: "1",
-      name: "Agent MarocPME",
-      email: "agent@marocpme.ma",
-      role: "agent",
-      phone: "0600000000",
-      department: "Support Technique"
-    };
-    
-    /* Version API réelle commentée
-    try {
-      const response = await api.get('/user/profile');
-      return response.data;
-    } catch (error) {
-      console.error('Erreur lors de la récupération du profil:', error);
-      throw error;
-    }
-    */
   }
 };
 

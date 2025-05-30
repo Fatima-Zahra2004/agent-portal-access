@@ -6,19 +6,18 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { ThemeToggle } from '@/components/ThemeToggle'
-import { KeyRound, User, AlertCircle } from 'lucide-react'
+import { KeyRound, AlertCircle, Server } from 'lucide-react'
 
 const Login = () => {
-  const [nom, setNom] = useState('')
   const [token, setToken] = useState('')
   const { login, isLoading } = useAuth()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!nom.trim() || !token.trim()) {
+    if (!token.trim()) {
       return;
     }
-    await login(nom, token)
+    await login(token)
   }
 
   return (
@@ -49,26 +48,16 @@ const Login = () => {
               Connectez-vous avec votre token PAT JIRA pour accéder à votre espace
             </CardDescription>
           </div>
+
+          {/* Indicateur de backend */}
+          <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground bg-muted/50 p-2 rounded-lg">
+            <Server className="h-3 w-3" />
+            <span>Backend Express.js • Port 3000</span>
+          </div>
         </CardHeader>
 
         <CardContent className="space-y-6">
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="nom" className="text-sm font-medium flex items-center gap-2">
-                <User className="h-4 w-4" />
-                Nom d'utilisateur
-              </Label>
-              <Input
-                id="nom"
-                placeholder="Votre nom d'utilisateur JIRA"
-                type="text"
-                value={nom}
-                onChange={(e) => setNom(e.target.value)}
-                required
-                className="h-11 transition-all duration-200 focus:ring-2 focus:ring-primary/20"
-              />
-            </div>
-
             <div className="space-y-2">
               <Label htmlFor="token" className="text-sm font-medium flex items-center gap-2">
                 <KeyRound className="h-4 w-4" />
@@ -81,7 +70,7 @@ const Login = () => {
                 value={token}
                 onChange={(e) => setToken(e.target.value)}
                 required
-                className="h-11 transition-all duration-200 focus:ring-2 focus:ring-primary/20"
+                className="h-11 transition-all duration-200 focus:ring-2 focus:ring-primary/20 font-mono text-sm"
               />
               <p className="text-xs text-muted-foreground">
                 Token généré via l'interface d'administration JIRA
@@ -93,9 +82,10 @@ const Login = () => {
                 <AlertCircle className="h-4 w-4 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
                 <div className="text-xs text-blue-700 dark:text-blue-300">
                   <p className="font-medium mb-1">Comment obtenir votre token PAT :</p>
-                  <p>1. Connectez-vous à JIRA</p>
+                  <p>1. Connectez-vous à JIRA (jisr.marocpme.gov.ma)</p>
                   <p>2. Allez dans Paramètres → Sécurité → Tokens API</p>
                   <p>3. Créez un nouveau token avec les permissions appropriées</p>
+                  <p>4. Copiez le token généré et collez-le ci-dessus</p>
                 </div>
               </div>
             </div>
@@ -103,25 +93,26 @@ const Login = () => {
             <Button 
               type="submit" 
               className="w-full h-11 text-base font-medium bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary transition-all duration-200 shadow-lg hover:shadow-xl" 
-              disabled={isLoading || !nom.trim() || !token.trim()}
+              disabled={isLoading || !token.trim()}
             >
               {isLoading ? (
                 <div className="flex items-center gap-2">
                   <div className="h-4 w-4 animate-spin rounded-full border-2 border-background border-t-transparent" />
-                  Connexion en cours...
+                  Vérification via Express.js...
                 </div>
               ) : (
-                'Se connecter'
+                'Se connecter avec JIRA'
               )}
             </Button>
           </form>
 
           <div className="text-center">
             <p className="text-sm text-muted-foreground">
-              Problème de connexion ? Contactez le{' '}
+              Problème de connexion ? Vérifiez que votre{' '}
               <Button variant="link" className="p-0 h-auto text-primary font-medium">
-                support technique
-              </Button>
+                serveur Express.js est démarré
+              </Button>{' '}
+              sur le port 3000
             </p>
           </div>
         </CardContent>

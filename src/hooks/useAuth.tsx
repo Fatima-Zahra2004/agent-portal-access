@@ -2,7 +2,7 @@
 import { useState, createContext, useContext, useEffect, ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/components/ui/use-toast';
-import { supabase } from '@/integrations/supabase/client';
+import { authService } from '@/services/api';
 
 interface User {
   id: string;
@@ -20,7 +20,7 @@ interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  login: (nom: string, token: string) => Promise<void>;
+  login: (token: string) => Promise<void>;
   logout: () => Promise<void>;
   checkAuth: () => Promise<boolean>;
 }
@@ -44,15 +44,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const storedToken = localStorage.getItem('jira_token');
       
       if (storedUser && storedToken) {
-        // Vérifier si le token est toujours valide
-        const { data, error } = await supabase.functions.invoke('jira-auth', {
-          body: { token: storedToken }
-        });
+        // Vérifier si le token est toujours valide via Express.js
+        const result = await authService.verifyToken(storedToken);
 
-        if (error || !data.success) {
+        if (!result.success) {
           // Token expiré ou invalide, nettoyer le storage
-          localStorage.removeItem('jira_user');
-          localStorage.removeItem('jira_token');
+          authService.logout();
           setUser(null);
           setIsLoading(false);
           return false;
@@ -70,31 +67,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return false;
   };
 
-  const login = async (nom: string, token: string) => {
+  const login = async (token: string) => {
     setIsLoading(true);
     try {
-      console.log('Tentative de connexion avec JIRA...');
+      console.log('Tentative de connexion avec JIRA via Express.js...');
       
-      const { data, error } = await supabase.functions.invoke('jira-auth', {
-        body: { token }
-      });
+      // Vérifier le token via votre backend Express.js
+      const result = await authService.verifyToken(token);
 
-      if (error) {
-        throw new Error(error.message || 'Erreur de connexion');
-      }
-
-      if (!data.success) {
-        throw new Error(data.error || 'Token PAT invalide');
+      if (!result.success) {
+        throw new Error(result.error || 'Token PAT invalide');
       }
 
       // Stocker les informations utilisateur et le token
-      setUser(data.user);
-      localStorage.setItem('jira_user', JSON.stringify(data.user));
+      setUser(result.user);
+      localStorage.setItem('jira_user', JSON.stringify(result.user));
       localStorage.setItem('jira_token', token);
 
       toast({
         title: "Connexion réussie",
-        description: `Bienvenue, ${data.user.name}`,
+        description: `Bienvenue, ${result.user.name}`,
       });
       
       navigate('/dashboard');
@@ -113,8 +105,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const logout = async () => {
     try {
       setUser(null);
-      localStorage.removeItem('jira_user');
-      localStorage.removeItem('jira_token');
+      authService.logout();
       
       toast({
         title: "Déconnexion",
