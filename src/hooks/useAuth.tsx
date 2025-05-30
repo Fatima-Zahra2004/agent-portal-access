@@ -1,4 +1,3 @@
-
 import { useState, createContext, useContext, useEffect, ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/components/ui/use-toast';
@@ -70,7 +69,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const login = async (token: string) => {
     setIsLoading(true);
     try {
-      console.log('Tentative de connexion avec JIRA via Express.js...');
+      console.log('🔐 Tentative de connexion avec JIRA via Express.js...');
       
       // Vérifier le token via votre backend Express.js
       const result = await authService.verifyToken(token);
@@ -85,17 +84,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       localStorage.setItem('jira_token', token);
 
       toast({
-        title: "Connexion réussie",
+        title: "✅ Connexion réussie",
         description: `Bienvenue, ${result.user.name}`,
       });
       
       navigate('/dashboard');
     } catch (error: any) {
-      console.error('Erreur de connexion:', error);
+      console.error('❌ Erreur de connexion:', error);
+      
       toast({
         variant: "destructive",
-        title: "Échec de connexion",
-        description: error.message || "Token PAT invalide ou problème de connexion à JIRA",
+        title: "❌ Échec de connexion",
+        description: error.message || "Erreur de connexion au serveur Express.js",
       });
     } finally {
       setIsLoading(false);

@@ -31,13 +31,18 @@ export const authService = {
   // Vérifier le token PAT et récupérer les infos utilisateur
   verifyToken: async (token: string) => {
     try {
-      console.log('Vérification du token PAT via Express.js...');
+      console.log('🔄 Vérification du token PAT via Express.js...');
+      console.log('🌐 URL cible:', 'http://localhost:3000/api/me');
+      
       const response = await axios.get('http://localhost:3000/api/me', {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Accept': 'application/json'
-        }
+        },
+        timeout: 10000 // 10 secondes de timeout
       });
+      
+      console.log('✅ Réponse Express.js reçue:', response.data);
       
       return {
         success: true,
@@ -54,10 +59,23 @@ export const authService = {
         }
       };
     } catch (error: any) {
-      console.error('Erreur lors de la vérification du token:', error);
+      console.error('❌ Erreur lors de la vérification du token:', error);
+      
+      let errorMessage = 'Erreur de connexion inconnue';
+      
+      if (error.code === 'ERR_NETWORK' || error.message === 'Network Error') {
+        errorMessage = '🚫 Impossible de contacter le serveur Express.js sur localhost:3000. Vérifiez que le serveur est démarré.';
+      } else if (error.response?.status === 401) {
+        errorMessage = '🔑 Token PAT invalide ou expiré';
+      } else if (error.response?.status === 500) {
+        errorMessage = '⚠️ Erreur serveur - Vérifiez la configuration JIRA dans Express.js';
+      } else if (error.code === 'ECONNREFUSED') {
+        errorMessage = '🔌 Connexion refusée - Le serveur Express.js n\'est pas accessible';
+      }
+      
       return {
         success: false,
-        error: error.response?.data?.error || 'Token PAT invalide ou problème de connexion à JIRA'
+        error: errorMessage
       };
     }
   },
